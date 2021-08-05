@@ -31,7 +31,7 @@ import random
 from . import microDevice_pb2
 from . import microDevice_pb2_grpc
 from . import device_utils
-from .device_utils import MicroTVMPlatforms
+from .device_utils import MicroDevice, MicroTVMPlatforms
 from .device_utils import GRPCSessionTasks
 
 PLATFORMS = None
@@ -54,7 +54,10 @@ def LoadAttachedDevices() -> MicroTVMPlatforms:
             serial_number = device["SerialNumber"]
             device_type = table.GetType(serial_number)
             if device_type:
-                attached_devices.AddPlatform(device_type, serial_number)
+                new_device = MicroDevice(device_type, serial_number)
+                if device["State"] == "Captured":
+                    new_device.SetUser()
+                attached_devices.AddPlatform(new_device)
     return attached_devices
 
 
