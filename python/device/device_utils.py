@@ -56,11 +56,14 @@ class MicroDevice(object):
             If device is aquired.
         _user : str
             Username who aquired this device.
+        _enabled : bool
+            True if device is enabled to use.
         """
         self._type = type
         self._serial_number = serial_number
         self._is_taken = False
         self._user = None
+        self._enabled = True
         super().__init__()
 
     def GetSerialNumber(self) -> str:
@@ -81,6 +84,9 @@ class MicroDevice(object):
         else:
             self._user = user
         self.SetTaken()
+
+    def Enable(self, status: str):
+        self._enabled = status
 
     def Free(self):
         self._is_taken = False
@@ -111,7 +117,7 @@ class MicroTVMPlatforms:
         self._sessions = dict()
 
     def __str__(self):
-        headers = ["#", "Type", "Serial", "Available", "User"]
+        headers = ["#", "Type", "Serial", "Available", "User", "Enabled"]
         data = []
         for device in self._platforms:
             data.append(
@@ -120,6 +126,7 @@ class MicroTVMPlatforms:
                     device.GetSerialNumber(),
                     not device._is_taken,
                     str(device._user),
+                    device._enabled,
                 ]
             )
         data = sorted(data, key=lambda l:l[0].lower(), reverse=False)
@@ -139,7 +146,7 @@ class MicroTVMPlatforms:
 
     def GetPlatform(self, type: str, session_number: str, username: str) -> str:
         for platform in self._platforms:
-            if platform._type == type and not platform._is_taken:
+            if platform._type == type and not platform._is_taken and platform._enabled:
                 platform._is_taken = True
                 platform._user = username
                 serial_number = platform.GetSerialNumber()
@@ -154,6 +161,12 @@ class MicroTVMPlatforms:
                 return
         LOG_.warning(f"SerialNumber {serial_number} was not found.")
 
+    def EnablePlatform(self, serial_number: str, status: bool)-> bool:
+        for platform in self._platforms:
+            if platform.GetSerialNumber() == serial_number:
+                platform.Enable(status)
+                return True
+        return False
 
 def LoadDeviceTable(table_file: str) -> MicroTVMPlatforms:
     """Load device table Json file to MicroTVMPlatforms."""

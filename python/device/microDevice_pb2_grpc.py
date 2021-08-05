@@ -45,6 +45,16 @@ class RPCRequestStub(object):
                 request_serializer=python_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
                 response_deserializer=python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
                 )
+        self.RPCDeviceRequestEnable = channel.unary_unary(
+                '/microDevice.RPCRequest/RPCDeviceRequestEnable',
+                request_serializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+                response_deserializer=python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+                )
+        self.RPCDeviceRequestDisable = channel.unary_unary(
+                '/microDevice.RPCRequest/RPCDeviceRequestDisable',
+                request_serializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+                response_deserializer=python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+                )
 
 
 class RPCRequestServicer(object):
@@ -88,6 +98,18 @@ class RPCRequestServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def RPCDeviceRequestEnable(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RPCDeviceRequestDisable(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_RPCRequestServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -119,6 +141,16 @@ def add_RPCRequestServicer_to_server(servicer, server):
             'RPCDeviceRequestList': grpc.unary_unary_rpc_method_handler(
                     servicer.RPCDeviceRequestList,
                     request_deserializer=python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+                    response_serializer=python_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
+            ),
+            'RPCDeviceRequestEnable': grpc.unary_unary_rpc_method_handler(
+                    servicer.RPCDeviceRequestEnable,
+                    request_deserializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
+                    response_serializer=python_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
+            ),
+            'RPCDeviceRequestDisable': grpc.unary_unary_rpc_method_handler(
+                    servicer.RPCDeviceRequestDisable,
+                    request_deserializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
                     response_serializer=python_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
             ),
     }
@@ -230,6 +262,40 @@ class RPCRequest(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCDeviceRequestList',
             python_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
+            python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def RPCDeviceRequestEnable(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCDeviceRequestEnable',
+            python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+            python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def RPCDeviceRequestDisable(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCDeviceRequestDisable',
+            python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
             python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

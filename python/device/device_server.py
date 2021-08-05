@@ -91,8 +91,6 @@ class RPCRequest(microDevice_pb2_grpc.RPCRequestServicer):
 
     def RPCDeviceIsAlive(self, request, context):
         assert request.type
-        # metadict = dict(context.invocation_metadata())
-        # print(metadict)
 
         return microDevice_pb2.DeviceReply(
             serial_number=request.serial_number,
@@ -102,9 +100,6 @@ class RPCRequest(microDevice_pb2_grpc.RPCRequestServicer):
         )
 
     def RPCSessionRequest(self, request, context):
-        metadict = dict(context.invocation_metadata())
-        # print(metadict)
-
         sess_num = "".join(
             ["{}".format(random.randint(0, 9)) for num in range(0, SESSION_NUM_MAX_LEN)]
         )
@@ -132,6 +127,21 @@ class RPCRequest(microDevice_pb2_grpc.RPCRequestServicer):
             text=str(PLATFORMS)
         )
 
+    def RPCDeviceRequestEnable(self, request, context):
+        status = PLATFORMS.EnablePlatform(serial_number=request.serial_number, status=True)
+        LOG_.debug(PLATFORMS)
+        if status:
+            return microDevice_pb2.StringMessage(text="Enable Success.")
+        else:
+            return microDevice_pb2.StringMessage(text="Enable failed.")
+    
+    def RPCDeviceRequestDisable(self, request, context):
+        status = PLATFORMS.EnablePlatform(serial_number=request.serial_number, status=False)
+        LOG_.debug(PLATFORMS)
+        if status:
+            return microDevice_pb2.StringMessage(text="Disable Success.")
+        else:
+            return microDevice_pb2.StringMessage(text="Disable failed.")
 
 def ServerStart(args):
     global PLATFORMS
