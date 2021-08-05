@@ -75,6 +75,13 @@ class MicroDevice(object):
     def SetTaken(self):
         self._is_taken = True
 
+    def SetUser(self, user=None):
+        if not user:
+            self._user = "Unknown"
+        else:
+            self._user = user
+        self.SetTaken()
+
     def Free(self):
         self._is_taken = False
         self._user = None
@@ -120,11 +127,10 @@ class MicroTVMPlatforms:
         message += str(tabulate(data, headers=headers, showindex='always'))
         return message
 
-    def AddPlatform(self, type: str, serial_number: str):
-        if serial_number not in self._serial_numbers:
-            self._serial_numbers.add(serial_number)
-            new_device = MicroDevice(type, serial_number)
-            self._platforms.append(new_device)
+    def AddPlatform(self, device: MicroDevice):
+        if device.GetSerialNumber() not in self._serial_numbers:
+            self._serial_numbers.add(device.GetSerialNumber())
+            self._platforms.append(device)
 
     def GetType(self, serial_number: str) -> str:
         for platform in self._platforms:
@@ -154,9 +160,10 @@ def LoadDeviceTable(table_file: str) -> MicroTVMPlatforms:
     with open(table_file, "r") as json_f:
         data = json.load(json_f)
         device_table = MicroTVMPlatforms()
-        for device, config in data.items():
+        for device_type, config in data.items():
             for item in config["instances"]:
-                device_table.AddPlatform(type=device, serial_number=item)
+                new_device = MicroDevice(type=device_type, serial_number=item)
+                device_table.AddPlatform(new_device)
     return device_table
 
 
