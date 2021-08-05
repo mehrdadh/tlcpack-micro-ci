@@ -110,6 +110,17 @@ class GRPCMicroDevice:
         )
         return request.text
 
+    def EnableDevice(self, serial_number: str, status: bool):
+        if status:
+            request = self._rpc_stub.RPCDeviceRequestEnable(
+                microDevice_pb2.DeviceMessage(serial_number=serial_number)
+            )
+        else:
+            request = self._rpc_stub.RPCDeviceRequestDisable(
+                microDevice_pb2.DeviceMessage(serial_number=serial_number)
+            )
+        print(request.text)
+
 def server_request_device(args: argparse.Namespace) -> str:
     grpc_device = GRPCMicroDevice(args.port, args.device)
     grpc_device.RequestDevice()
@@ -195,7 +206,12 @@ def release_device(args: argparse.Namespace):
 
 def query_device(args: argparse.Namespace):
     grpc_device = GRPCMicroDevice(args.port, None)
-    print(grpc_device.RequestList())
+    if args.enable:
+        grpc_device.EnableDevice(serial_number=args.serial, status=True)
+    elif args.disable:
+        grpc_device.EnableDevice(serial_number=args.serial, status=False)
+    else:
+        print(grpc_device.RequestList())
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -282,6 +298,15 @@ def parse_args() -> argparse.Namespace:
         "query", help="Query devices from server."
     )
     parser_query.set_defaults(func=query_device)
+    parser_query.add_argument(
+        "--enable", action="store_true", help="Enable a device on server."
+    )
+    parser_query.add_argument(
+        "--disable", action="store_true", help="Disable a device on server."
+    )
+    parser_query.add_argument(
+        "--serial", type=str, default=None, help="Device serial number. Used with enable/disable sub-command."
+    )
 
     return parser.parse_args()
 

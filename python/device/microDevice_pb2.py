@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'B\020MicroDeviceProtoP\001\242\002\004MDev',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1fpython/device/microDevice.proto\x12\x0bmicroDevice\"Z\n\rDeviceMessage\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x15\n\rserial_number\x18\x02 \x01(\t\x12\x16\n\x0esession_number\x18\x03 \x01(\t\x12\x0c\n\x04user\x18\x04 \x01(\t\"6\n\x0b\x44\x65viceReply\x12\x15\n\rserial_number\x18\x01 \x01(\t\x12\x10\n\x08is_alive\x18\x02 \x01(\x08\"6\n\x0eSessionMessage\x12\x16\n\x0esession_number\x18\x01 \x01(\t\x12\x0c\n\x04task\x18\x02 \x01(\t\"\x1d\n\rStringMessage\x12\x0c\n\x04text\x18\x01 \x01(\t2\xe2\x03\n\nRPCRequest\x12J\n\x10RPCDeviceRequest\x12\x1a.microDevice.DeviceMessage\x1a\x18.microDevice.DeviceReply\"\x00\x12J\n\x10RPCDeviceRelease\x12\x1a.microDevice.DeviceMessage\x1a\x18.microDevice.DeviceReply\"\x00\x12J\n\x10RPCDeviceIsAlive\x12\x1a.microDevice.DeviceMessage\x1a\x18.microDevice.DeviceReply\"\x00\x12O\n\x11RPCSessionRequest\x12\x1b.microDevice.SessionMessage\x1a\x1b.microDevice.SessionMessage\"\x00\x12M\n\x0fRPCSessionClose\x12\x1b.microDevice.SessionMessage\x1a\x1b.microDevice.SessionMessage\"\x00\x12P\n\x14RPCDeviceRequestList\x12\x1a.microDevice.StringMessage\x1a\x1a.microDevice.StringMessage\"\x00\x42\x1b\x42\x10MicroDeviceProtoP\x01\xa2\x02\x04MDevb\x06proto3'
+  serialized_pb=b'\n\x1fpython/device/microDevice.proto\x12\x0bmicroDevice\"Z\n\rDeviceMessage\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x15\n\rserial_number\x18\x02 \x01(\t\x12\x16\n\x0esession_number\x18\x03 \x01(\t\x12\x0c\n\x04user\x18\x04 \x01(\t\"6\n\x0b\x44\x65viceReply\x12\x15\n\rserial_number\x18\x01 \x01(\t\x12\x10\n\x08is_alive\x18\x02 \x01(\x08\"6\n\x0eSessionMessage\x12\x16\n\x0esession_number\x18\x01 \x01(\t\x12\x0c\n\x04task\x18\x02 \x01(\t\"\x1d\n\rStringMessage\x12\x0c\n\x04text\x18\x01 \x01(\t2\x8b\x05\n\nRPCRequest\x12J\n\x10RPCDeviceRequest\x12\x1a.microDevice.DeviceMessage\x1a\x18.microDevice.DeviceReply\"\x00\x12J\n\x10RPCDeviceRelease\x12\x1a.microDevice.DeviceMessage\x1a\x18.microDevice.DeviceReply\"\x00\x12J\n\x10RPCDeviceIsAlive\x12\x1a.microDevice.DeviceMessage\x1a\x18.microDevice.DeviceReply\"\x00\x12O\n\x11RPCSessionRequest\x12\x1b.microDevice.SessionMessage\x1a\x1b.microDevice.SessionMessage\"\x00\x12M\n\x0fRPCSessionClose\x12\x1b.microDevice.SessionMessage\x1a\x1b.microDevice.SessionMessage\"\x00\x12P\n\x14RPCDeviceRequestList\x12\x1a.microDevice.StringMessage\x1a\x1a.microDevice.StringMessage\"\x00\x12R\n\x16RPCDeviceRequestEnable\x12\x1a.microDevice.DeviceMessage\x1a\x1a.microDevice.StringMessage\"\x00\x12S\n\x17RPCDeviceRequestDisable\x12\x1a.microDevice.DeviceMessage\x1a\x1a.microDevice.StringMessage\"\x00\x42\x1b\x42\x10MicroDeviceProtoP\x01\xa2\x02\x04MDevb\x06proto3'
 )
 
 
@@ -232,7 +232,7 @@ _RPCREQUEST = _descriptor.ServiceDescriptor(
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
   serialized_start=284,
-  serialized_end=766,
+  serialized_end=935,
   methods=[
   _descriptor.MethodDescriptor(
     name='RPCDeviceRequest',
@@ -290,6 +290,26 @@ _RPCREQUEST = _descriptor.ServiceDescriptor(
     index=5,
     containing_service=None,
     input_type=_STRINGMESSAGE,
+    output_type=_STRINGMESSAGE,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='RPCDeviceRequestEnable',
+    full_name='microDevice.RPCRequest.RPCDeviceRequestEnable',
+    index=6,
+    containing_service=None,
+    input_type=_DEVICEMESSAGE,
+    output_type=_STRINGMESSAGE,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='RPCDeviceRequestDisable',
+    full_name='microDevice.RPCRequest.RPCDeviceRequestDisable',
+    index=7,
+    containing_service=None,
+    input_type=_DEVICEMESSAGE,
     output_type=_STRINGMESSAGE,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,

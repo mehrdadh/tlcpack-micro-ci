@@ -32,6 +32,8 @@ service RPCRequest {
   rpc RPCSessionRequest (SessionMessage) returns (SessionMessage) {}
   rpc RPCSessionClose (SessionMessage) returns (SessionMessage) {}
   rpc RPCDeviceRequestList (StringMessage) returns (StringMessage) {} 
+  rpc RPCDeviceRequestEnable (DeviceMessage) returns (StringMessage) {}
+  rpc RPCDeviceRequestDisable (DeviceMessage) returns (StringMessage) {}
 }
 
 // The device request message
