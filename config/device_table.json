@@ -1,0 +1,40 @@
+{
+    "stm32f746xx_nucleo": {
+        "vid_hex": "0483",
+        "pid_hex": "374b",
+        "manufacturer": "STMicroelectronics",
+        "instances": [
+            "0670FF343039564157223833"
+        ]
+        },
+    "stm32f746xx_disco": {
+        "vid_hex": "0483",
+        "pid_hex": "374b",
+        "manufacturer": "STMicroelectronics",
+        "instances": [
+            "066EFF545057717867150931",
+            "066CFF485157717867164238",
+            "066CFF485157717867164057"
+        ]
+    },
+    "nrf5340dk": {
+        "vid_hex": "1366",
+        "pid_hex": "1055",
+        "manufacturer": "SEGGER",
+        "instances": [
+            "000960199563",
+            "000960142003",
+            "000960111507"
+        ]
+    },
+    "stm32l4r5zi_nucleo": {
+        "vid_hex": "0483",
+        "pid_hex": "374b",
+        "manufacturer": "STMicroelectronics",
+        "instances": [
+            "066EFF363732594D43181028",
+            "0668FF363732594D43173552",
+            "066DFF363732594D43183729"
+        ]
+    }
+}

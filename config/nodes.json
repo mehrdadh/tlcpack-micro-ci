@@ -1,0 +1,12 @@
+{
+    "CPU_1": {
+        "host": "wolfi",
+        "labelString": "CPU",
+        "port": 22,
+        "sshHostKeyVerificationStrategy": "nonVerifyingKeyVerificationStrategy",
+        "type": "CPU",
+        "numExecutors": 4,
+        "remoteFS": "/home/mhessar/jenkins-cpu",
+        "retentionStrategy": "always"
+    }
+}

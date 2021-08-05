@@ -1,0 +1,37 @@
+- job:
+    name: microtvm
+    project-type: multibranch
+    description: 'MicroTVM CI.'
+    disabled: false
+    concurrent: true
+    scm:
+        - github:
+            repo: tlcpack-micro-ci
+            repo-owner: mehrdadh
+            credentials-id: 'github-credential'
+            branch-discovery: all
+            discover-branch:
+            discover-pr-origin: merge-current
+            discover-pr-forks-strategy: merge-current
+            discover-pr-forks-trust: nobody
+            notification-context: tlcpack-micro-ci
+            filter-by-name-wildcard:
+                includes: main
+                excludes: ""
+            build-strategies:
+                - all-strategies-match:
+                    strategies:
+                        - skip-initial-build: true
+                        - named-branches:
+                            - exact-name:
+                                name: main
+                                case-sensitive: true
+            property-strategies:
+                all-branches:
+                    - suppress-scm-triggering: true
+            refspecs:
+                - +refs/heads/main:refs/remotes/@{remote}/main
+
+    days-to-keep: 10
+    number-to-keep: 100
+    script-path: Jenkinsfile
