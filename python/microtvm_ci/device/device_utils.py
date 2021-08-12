@@ -1,5 +1,4 @@
 import argparse
-from collections import defaultdict
 import subprocess
 import logging as _LOG
 import re

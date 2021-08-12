@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from python.device import microDevice_pb2 as python_dot_device_dot_microDevice__pb2
+from python.microtvm_ci.device import microDevice_pb2 as python_dot_microtvm__ci_dot_device_dot_microDevice__pb2
 
 
 class RPCRequestStub(object):
@@ -17,43 +17,43 @@ class RPCRequestStub(object):
         """
         self.RPCDeviceRequest = channel.unary_unary(
                 '/microDevice.RPCRequest/RPCDeviceRequest',
-                request_serializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
-                response_deserializer=python_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
+                request_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+                response_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
                 )
         self.RPCDeviceRelease = channel.unary_unary(
                 '/microDevice.RPCRequest/RPCDeviceRelease',
-                request_serializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
-                response_deserializer=python_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
+                request_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+                response_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
                 )
         self.RPCDeviceIsAlive = channel.unary_unary(
                 '/microDevice.RPCRequest/RPCDeviceIsAlive',
-                request_serializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
-                response_deserializer=python_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
+                request_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+                response_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
                 )
         self.RPCSessionRequest = channel.unary_unary(
                 '/microDevice.RPCRequest/RPCSessionRequest',
-                request_serializer=python_dot_device_dot_microDevice__pb2.SessionMessage.SerializeToString,
-                response_deserializer=python_dot_device_dot_microDevice__pb2.SessionMessage.FromString,
+                request_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.SessionMessage.SerializeToString,
+                response_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.SessionMessage.FromString,
                 )
         self.RPCSessionClose = channel.unary_unary(
                 '/microDevice.RPCRequest/RPCSessionClose',
-                request_serializer=python_dot_device_dot_microDevice__pb2.SessionMessage.SerializeToString,
-                response_deserializer=python_dot_device_dot_microDevice__pb2.SessionMessage.FromString,
+                request_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.SessionMessage.SerializeToString,
+                response_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.SessionMessage.FromString,
                 )
         self.RPCDeviceRequestList = channel.unary_unary(
                 '/microDevice.RPCRequest/RPCDeviceRequestList',
-                request_serializer=python_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
-                response_deserializer=python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+                request_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
+                response_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.FromString,
                 )
         self.RPCDeviceRequestEnable = channel.unary_unary(
                 '/microDevice.RPCRequest/RPCDeviceRequestEnable',
-                request_serializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
-                response_deserializer=python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+                request_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+                response_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.FromString,
                 )
         self.RPCDeviceRequestDisable = channel.unary_unary(
                 '/microDevice.RPCRequest/RPCDeviceRequestDisable',
-                request_serializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
-                response_deserializer=python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+                request_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+                response_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.FromString,
                 )
 
 
@@ -115,43 +115,43 @@ def add_RPCRequestServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'RPCDeviceRequest': grpc.unary_unary_rpc_method_handler(
                     servicer.RPCDeviceRequest,
-                    request_deserializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
-                    response_serializer=python_dot_device_dot_microDevice__pb2.DeviceReply.SerializeToString,
+                    request_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
+                    response_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceReply.SerializeToString,
             ),
             'RPCDeviceRelease': grpc.unary_unary_rpc_method_handler(
                     servicer.RPCDeviceRelease,
-                    request_deserializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
-                    response_serializer=python_dot_device_dot_microDevice__pb2.DeviceReply.SerializeToString,
+                    request_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
+                    response_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceReply.SerializeToString,
             ),
             'RPCDeviceIsAlive': grpc.unary_unary_rpc_method_handler(
                     servicer.RPCDeviceIsAlive,
-                    request_deserializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
-                    response_serializer=python_dot_device_dot_microDevice__pb2.DeviceReply.SerializeToString,
+                    request_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
+                    response_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceReply.SerializeToString,
             ),
             'RPCSessionRequest': grpc.unary_unary_rpc_method_handler(
                     servicer.RPCSessionRequest,
-                    request_deserializer=python_dot_device_dot_microDevice__pb2.SessionMessage.FromString,
-                    response_serializer=python_dot_device_dot_microDevice__pb2.SessionMessage.SerializeToString,
+                    request_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.SessionMessage.FromString,
+                    response_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.SessionMessage.SerializeToString,
             ),
             'RPCSessionClose': grpc.unary_unary_rpc_method_handler(
                     servicer.RPCSessionClose,
-                    request_deserializer=python_dot_device_dot_microDevice__pb2.SessionMessage.FromString,
-                    response_serializer=python_dot_device_dot_microDevice__pb2.SessionMessage.SerializeToString,
+                    request_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.SessionMessage.FromString,
+                    response_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.SessionMessage.SerializeToString,
             ),
             'RPCDeviceRequestList': grpc.unary_unary_rpc_method_handler(
                     servicer.RPCDeviceRequestList,
-                    request_deserializer=python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
-                    response_serializer=python_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
+                    request_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+                    response_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
             ),
             'RPCDeviceRequestEnable': grpc.unary_unary_rpc_method_handler(
                     servicer.RPCDeviceRequestEnable,
-                    request_deserializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
-                    response_serializer=python_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
+                    request_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
+                    response_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
             ),
             'RPCDeviceRequestDisable': grpc.unary_unary_rpc_method_handler(
                     servicer.RPCDeviceRequestDisable,
-                    request_deserializer=python_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
-                    response_serializer=python_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
+                    request_deserializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
+                    response_serializer=python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -176,8 +176,8 @@ class RPCRequest(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCDeviceRequest',
-            python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
-            python_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -193,8 +193,8 @@ class RPCRequest(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCDeviceRelease',
-            python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
-            python_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -210,8 +210,8 @@ class RPCRequest(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCDeviceIsAlive',
-            python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
-            python_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -227,8 +227,8 @@ class RPCRequest(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCSessionRequest',
-            python_dot_device_dot_microDevice__pb2.SessionMessage.SerializeToString,
-            python_dot_device_dot_microDevice__pb2.SessionMessage.FromString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.SessionMessage.SerializeToString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.SessionMessage.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -244,8 +244,8 @@ class RPCRequest(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCSessionClose',
-            python_dot_device_dot_microDevice__pb2.SessionMessage.SerializeToString,
-            python_dot_device_dot_microDevice__pb2.SessionMessage.FromString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.SessionMessage.SerializeToString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.SessionMessage.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -261,8 +261,8 @@ class RPCRequest(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCDeviceRequestList',
-            python_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
-            python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -278,8 +278,8 @@ class RPCRequest(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCDeviceRequestEnable',
-            python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
-            python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -295,7 +295,7 @@ class RPCRequest(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCDeviceRequestDisable',
-            python_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
-            python_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+            python_dot_microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
