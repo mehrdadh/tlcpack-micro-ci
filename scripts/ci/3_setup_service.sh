@@ -29,6 +29,6 @@ if [ "$1" == "--help" ]; then
     exit -1
 fi
 
-poetry run python -m python.ci.run_jenkins \
+poetry run python -m microtvm_ci.ci.run_jenkins \
     --jenkins-homedir="${JENKINS_HOME_DIR}" \
     --jenkins-service-script-path="$(get_repo_root)/scripts/ci/microtvm_jenkins_init.sh"

@@ -16,7 +16,7 @@
 # under the License.
 
 import pathlib
-# from python.device.device_server import LOG_
+from .device_server import LOG_
 import grpc
 import logging
 import argparse

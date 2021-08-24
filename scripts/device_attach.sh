@@ -41,7 +41,7 @@ else
 fi
 
 source $HOME/.poetry/env
-poetry run python -m python.device.device_client \
+poetry run python -m microtvm_ci.device.device_client \
     "attach" \
     --device="${device_type}" \
     --artifact-path="${ARTIFACT_PATH}" \
