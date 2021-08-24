@@ -31,10 +31,6 @@ VIRTUALBOX_VID_PID_RE = re.compile(r"0x([0-9A-Fa-f]{4}).*")
 
 DEVICE_TABLE_FILE = os.path.join(
     os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "config",
     "device_table.json"
 )
 

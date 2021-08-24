@@ -6,7 +6,7 @@ authors = ["Mehrdad Hessar"]
 packages = [
    { include="microtvm_ci", from="python" },
 ]
-include = ["config/device_table.json"]
+include = ["microtvm_ci/device/device_table.json"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
