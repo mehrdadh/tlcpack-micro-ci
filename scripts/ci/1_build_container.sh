@@ -28,7 +28,7 @@ if [ "$1" == "--help" ]; then
     exit -1
 fi
 
-poetry run python -m python.ci.build_container \
+poetry run python -m microtvm_ci.ci.build_container \
     --required-plugins="config/plugins.txt" \
     --installed-plugins="${ARTIFACT_DIR}/installed-plugins.txt" \
     --container-tag="${CONTAINER_TAG}"

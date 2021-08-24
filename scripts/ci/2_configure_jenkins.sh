@@ -44,7 +44,7 @@ else
     jenkins_jobs_dir="config/jenkins-jobs"
 fi
 
-poetry run python -m python.ci.configure_jenkins \
+poetry run python -m microtvm_ci.ci.configure_jenkins \
        --base-casc-config="config/base-jenkins.yaml" \
        --nodes-file="config/nodes.json" \
        --github-personal-access-token="config/secrets/github-personal-access-token" \

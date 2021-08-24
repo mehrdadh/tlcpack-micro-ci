@@ -1,5 +1,4 @@
 import argparse
-from collections import defaultdict
 import subprocess
 import logging as _LOG
 import re
@@ -31,11 +30,8 @@ MICROTVM_PLATFORM_INFO = {
 VIRTUALBOX_VID_PID_RE = re.compile(r"0x([0-9A-Fa-f]{4}).*")
 
 DEVICE_TABLE_FILE = os.path.join(
-    subprocess.check_output(
-        ["git", "rev-parse", "--show-toplevel"], encoding="utf-8"
-    ).strip(),
-    "config",
-    "device_table.json",
+    os.path.dirname(__file__),
+    "device_table.json"
 )
 
 LOG_ = logging.getLogger()

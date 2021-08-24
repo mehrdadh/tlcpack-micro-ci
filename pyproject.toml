@@ -2,17 +2,16 @@
 name = "microtvm_ci"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Mehrdad Hessar"]
 packages = [
-   { include = "ci", from="python" },
-   { include = "device", from="python" },
+   { include="microtvm_ci", from="python" },
 ]
+include = ["microtvm_ci/device/device_table.json"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
 PyYAML = "^5.4.1"
 requests = "^2.25.1"
-boto3 = "1.17.67"  # TODO switch back to semver
 jenkins-job-builder = {git = "https://github.com/areusch/jenkins-job-builder", rev = "master"}
 grpcio = "^1.39.0"
 grpcio-tools = "^1.39.0"
