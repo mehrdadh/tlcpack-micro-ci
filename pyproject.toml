@@ -4,8 +4,9 @@ version = "0.1.0"
 description = ""
 authors = ["Mehrdad Hessar"]
 packages = [
-   { include = "microtvm_ci", from="python" },
+   { include="microtvm_ci", from="python" },
 ]
+include = ["config/device_table.json"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
