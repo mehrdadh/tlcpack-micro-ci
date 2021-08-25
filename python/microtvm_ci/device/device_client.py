@@ -127,10 +127,11 @@ def server_request_device(args: argparse.Namespace) -> str:
     return grpc_device._device.GetSerialNumber()
 
 
-def server_release_device(serial_number, args):
+def server_release_device(args: argparse.Namespace):
     grpc_device = GRPCMicroDevice(args.port, args.device)
-    grpc_device._device.SetSerialNumber(serial_number)
+    grpc_device._device.SetSerialNumber(args.serial)
     grpc_device.ReleaseDevice()
+    print(f"Device {args.serial} released.")
 
 
 def attach_device(args: argparse.Namespace):
@@ -149,7 +150,7 @@ def attach_device(args: argparse.Namespace):
     try:
         device_utils.attach(args.device, args.vm_path, serial_number)
     except Exception as ex:
-        server_release_device(serial_number, args)
+        server_release_device(args)
         raise RuntimeError(ex)
 
     if args.artifact_path:
@@ -173,7 +174,7 @@ def detach_device(args: argparse.Namespace):
 
     device_utils.detach(args.device, args.vm_path, serial_number)
     # Release device from the microTVM device server
-    server_release_device(serial_number, args)
+    server_release_device(args)
 
 
 def request_device(args: argparse.Namespace):
@@ -188,22 +189,8 @@ def request_device(args: argparse.Namespace):
 
 
 def release_device(args: argparse.Namespace):
-    server_release_device(args.serial, args)
+    server_release_device(args)
 
-
-def request_device(args: argparse.Namespace):
-    serial_number = server_request_device(args)
-    if not serial_number:
-        if args.wait:
-            LOG_.info(f"Waiting for {args.device} device...")
-            while not serial_number:
-                serial_number = server_request_device(args)
-                time.sleep(5)
-    return serial_number
-
-
-def release_device(args: argparse.Namespace):
-    server_release_device(args.serial, args)
 
 def query_device(args: argparse.Namespace):
     grpc_device = GRPCMicroDevice(args.port, None)
@@ -291,6 +278,13 @@ def parse_args() -> argparse.Namespace:
         "release", help="Release a device from device server."
     )
     parser_release.set_defaults(func=release_device)
+    parser_release.add_argument(
+        "--device",
+        type=str,
+        required=True,
+        choices=device_utils.GetAllDeviceTypes(),
+        help="MicroTVM device to request.",
+    )
     parser_release.add_argument(
         "--serial", type=str, default=None, help="Device serial number."
     )
