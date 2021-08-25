@@ -154,7 +154,8 @@ def attach_device(args: argparse.Namespace):
 
     if args.artifact_path:
         artifact_file = args.artifact_path / get_artifact_filename(args.device)
-        artifact_file.unlink(missing_ok=True)
+        if artifact_file.is_file():
+            artifact_file.unlink()
         args.artifact_path.mkdir(parents=True, exist_ok=True)
         with open(artifact_file, "w") as f:
             f.write(str(serial_number))
