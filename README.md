@@ -6,7 +6,7 @@ This repository contains scripts to launch a CI using Jenkins to test TVM reposi
 ## Dependencies
 - We use Jenkins docker to create an easy installation
 - All python dependencies are located in a poetry file.
-- We use TVM as a submodule to this repository. [Jenkinsfile](./Jenkinsfile) is an example of testing [test_zephyr, test_zephyr_aot] on multiple microTVM targets. 
+- We use TVM as a submodule to this repository. [Jenkinsfile](./Jenkinsfile) is an example of testing [test_zephyr, test_zephyr_aot] on multiple microTVM targets. TVM submodule is not included in this repository, however, to do and end to end test you need to clone TVM under [3rdparty](./3rdparty). 
 
 ## Configuration Steps
 To build the jenkins container with required plugins and run it as a service under systemd, follow these steps from the main directory:
