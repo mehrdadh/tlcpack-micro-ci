@@ -26,7 +26,8 @@ def get_repo_root() -> pathlib.Path:
 
 def generate_ssh_key(private_key_path, public_key_path=None):
     private_key_path.parent.mkdir(parents=True, exist_ok=True)
-    private_key_path.unlink(missing_ok=True)
+    if private_key_path.is_file():
+        private_key_path.unlink()
     subprocess.check_call(
         ["ssh-keygen", "-t", "rsa", "-b", "2048", "-N", "", "-f", str(private_key_path)]
     )

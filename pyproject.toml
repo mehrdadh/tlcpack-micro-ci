@@ -9,7 +9,7 @@ packages = [
 include = ["microtvm_ci/device/device_table.json"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.6.9"
 PyYAML = "^5.4.1"
 requests = "^2.25.1"
 jenkins-job-builder = {git = "https://github.com/areusch/jenkins-job-builder", rev = "master"}

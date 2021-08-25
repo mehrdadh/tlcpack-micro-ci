@@ -107,10 +107,13 @@ class UnprotectedCredentialsError(Exception):
 
 
 def generate_ssh_keys(args: argparse.Namespace):
-    args.jenkins_executor_private_key.unlink(missing_ok=True)
-    pathlib.Path(str(args.jenkins_executor_private_key) + ".pub").unlink(
-        missing_ok=True
-    )
+    if args.jenkins_executor_private_key.is_file():
+        args.jenkins_executor_private_key.unlink()
+    
+    pub_file = pathlib.Path(str(args.jenkins_executor_private_key) + ".pub")
+    if pub_file.is_file():
+        pub_file.unlink()
+
     utils.generate_ssh_key(
         args.jenkins_executor_private_key, args.jenkins_executor_public_key
     )
