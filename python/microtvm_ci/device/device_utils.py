@@ -52,7 +52,7 @@ class MicroDevice(object):
             VID number.
         _pid_hex : str
             PID number.
-        _taken : bool
+        _is_taken : bool
             If device is aquired.
         _user : str
             Username who aquired this device.
@@ -286,33 +286,16 @@ def ListConnectedDevices(micro_device: MicroDevice) -> list:
         if device["Current State"] == "Captured":
             new_device.SetUser()
         device_list.append(new_device)
-        # device_list.append(
-        #     {
-        #         "SerialNumber": device["SerialNumber"],
-        #         "UUID": device["UUID"],
-        #         "State": device["Current State"],
-        #     }
-        # )
+
     return device_list
 
 
-def DeviceIsAlive(platform: str, serial: str) -> bool:
-    devices = ListConnectedDevices(platform)
+def DeviceIsAlive(device_type: str, serial: str) -> bool:
+    devices = ListConnectedDevices(MicroDevice(device_type, serial_number=serial))
     for device in devices:
-        if device["SerialNumber"] == serial:
+        if device.GetSerialNumber() == serial:
             return True
     return False
-
-
-def command_list(args: argparse.Namespace):
-    """Print connected MicroTVM devices."""
-
-    devices = ListConnectedDevices(args.microtvm_platform)
-    results = ""
-    for device in devices:
-        results += f"SerialNumber:{device['SerialNumber']}\tUUID: {device['UUID']}\tState:{device['State']}\n"
-    print(results)
-
 
 def VirtualBoxGetInfo(machine_uuid: str) -> dict:
     """
@@ -355,11 +338,11 @@ def attach_command(args):
     attach(args.microtvm_platform, args.vm_path, args.serial)
 
 
-def attach(microtvm_platfrom: str, vm_path: str, serial_number: str):
+def attach(device_type: str, vm_path: str, serial_number: str):
     """
     Attach a microTVM platform to a virtualbox.
     """
-    usb_devices = ParseVirtualBoxDevices(microtvm_platfrom)
+    usb_devices = ParseVirtualBoxDevices(MicroDevice(type=device_type, serial_number=serial_number))
     found = False
     for dev in usb_devices:
         if dev["SerialNumber"] == serial_number:
@@ -421,19 +404,16 @@ def attach(microtvm_platfrom: str, vm_path: str, serial_number: str):
         )
 
 
-def detach(microtvm_platfrom: str, vm_path: str, serial_number: str):
+def detach(device_type: str, vm_path: str, serial_number: str):
     with open(
         os.path.join(vm_path, ".vagrant", "machines", "default", "virtualbox", "id")
     ) as f:
         machine_uuid = f.read()
 
-    usb_devices = ParseVirtualBoxDevices(microtvm_platfrom)
+    usb_devices = ParseVirtualBoxDevices(MicroDevice(type=device_type, serial_number=serial_number))
     found = False
     for dev in usb_devices:
         if dev["SerialNumber"] == serial_number:
-            vid_hex = dev["vid_hex"]
-            pid_hex = dev["pid_hex"]
-            serial = dev["SerialNumber"]
             dev_uuid = dev["UUID"]
             found = True
             break
@@ -449,11 +429,6 @@ def detach(microtvm_platfrom: str, vm_path: str, serial_number: str):
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help="Action to perform.")
-
-    parser_list = subparsers.add_parser(
-        "list", help="List connected devices for a target."
-    )
-    parser_list.set_defaults(func=command_list)
 
     parser_attach = subparsers.add_parser(
         "attach", help="Attach a microTVM device to a virtual machine."
