@@ -34,6 +34,7 @@ service RPCRequest {
   rpc RPCDeviceRequestList (StringMessage) returns (StringMessage) {} 
   rpc RPCDeviceRequestEnable (DeviceMessage) returns (StringMessage) {}
   rpc RPCDeviceRequestDisable (DeviceMessage) returns (StringMessage) {}
+  rpc RPCGetDeviceTypeInfo (DeviceMessage) returns (DeviceReply) {}
 }
 
 // The device request message

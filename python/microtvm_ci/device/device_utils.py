@@ -195,6 +195,12 @@ class MicroTVMPlatforms:
                 micro_device_list.append(platform)
         return micro_device_list
 
+    def GetDeviceWithType(self, device_type: str) -> MicroDevice:
+        for platform in self._platforms:
+            if platform.GetType() == device_type:
+                return copy.copy(platform)
+        return None
+
 def LoadDeviceTable(table_file: str) -> MicroTVMPlatforms:
     """Load device table Json file to MicroTVMPlatforms."""
     with open(table_file, "r") as json_f:
@@ -411,21 +417,22 @@ def attach(micro_device: MicroDevice, vm_path: str):
         )
 
 
-def detach(device_type: str, vm_path: str, serial_number: str):
+def detach(micro_device: MicroDevice, vm_path: str):
     with open(
         os.path.join(vm_path, ".vagrant", "machines", "default", "virtualbox", "id")
     ) as f:
         machine_uuid = f.read()
 
-    usb_devices = ParseVirtualBoxDevices(MicroDevice(type=device_type, serial_number=serial_number))
+    usb_devices = ParseVirtualBoxDevices(micro_device)
     found = False
     for dev in usb_devices:
-        if dev["SerialNumber"] == serial_number:
+        if dev["SerialNumber"] == micro_device.GetSerialNumber():
             dev_uuid = dev["UUID"]
             found = True
             break
+
     if not found:
-        LOG_.warning(f"Serial {serial_number} not found in usb devies.")
+        LOG_.warning(f"Serial {micro_device.GetSerialNumber()} not found in usb devies.")
         LOG_.warning(usb_devices)
         return
     subprocess.check_call(

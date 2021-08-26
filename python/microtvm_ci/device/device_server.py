@@ -141,6 +141,11 @@ class RPCRequest(microDevice_pb2_grpc.RPCRequestServicer):
             return microDevice_pb2.StringMessage(text="Disable Success.")
         else:
             return microDevice_pb2.StringMessage(text="Disable failed.")
+    
+    def RPCGetDeviceTypeInfo(self, request, context):
+        assert request.type
+        micro_device = PLATFORMS.GetDeviceWithType(device_type=request.type)
+        return microDevice_pb2.DeviceReply(vid=micro_device.GetVID(), pid=micro_device.GetPID())
 
 def ServerStart(args):
     global PLATFORMS

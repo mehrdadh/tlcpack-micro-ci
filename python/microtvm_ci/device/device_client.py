@@ -109,6 +109,14 @@ class GRPCMicroDevice:
             )
         print(request.text)
 
+    def SetDeviceInfo(self):
+        request = self._rpc_stub.RPCGetDeviceTypeInfo(
+            microDevice_pb2.DeviceMessage(type=self._device.GetType())
+        )
+        self._device.SetVID(request.vid)
+        self._device.SetPID(request.pid)
+
+
 def server_request_device(args: argparse.Namespace) -> MicroDevice:
     grpc_device = GRPCMicroDevice(args.port, args.device)
     grpc_device.RequestDevice()
@@ -160,7 +168,12 @@ def detach_device(args: argparse.Namespace):
     else:
         serial_number = args.serial
 
-    device_utils.detach(args.device, args.vm_path, serial_number)
+    # make a MicroDevice with serial number, pid and vid
+    grpc_micro_device = GRPCMicroDevice(args.port, args.device)
+    grpc_micro_device.SetDeviceInfo()
+    grpc_micro_device._device.SetSerialNumber(serial_number)
+
+    device_utils.detach(grpc_micro_device._device, args.vm_path)
     # Release device from the microTVM device server
     server_release_device(args.port, args.device, serial_number)
 
