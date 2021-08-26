@@ -189,7 +189,7 @@ def request_device(args: argparse.Namespace):
 
 
 def release_device(args: argparse.Namespace):
-    server_release_device(args)
+    server_release_device(args.port, args.device, args.serial)
 
 
 def query_device(args: argparse.Namespace):
