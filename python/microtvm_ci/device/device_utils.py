@@ -8,25 +8,6 @@ from tabulate import tabulate
 import logging
 import copy
 
-MICROTVM_PLATFORM_INFO = {
-    "nrf5340dk": {"manufacturer": "SEGGER", "vid_hex": "1366", "pid_hex": "1055"},
-    "stm32f746xx_nucleo": {
-        "manufacturer": "STMicroelectronics",
-        "vid_hex": "0483",
-        "pid_hex": "374b",
-    },
-    "stm32f746xx_disco": {
-        "manufacturer": "STMicroelectronics",
-        "vid_hex": "0483",
-        "pid_hex": "374b",
-    },
-    "stm32l4r5zi_nucleo": {
-        "manufacturer": "STMicroelectronics",
-        "vid_hex": "0483",
-        "pid_hex": "374b",
-    },
-}
-
 VIRTUALBOX_VID_PID_RE = re.compile(r"0x([0-9A-Fa-f]{4}).*")
 
 DEVICE_TABLE_FILE = os.path.join(
