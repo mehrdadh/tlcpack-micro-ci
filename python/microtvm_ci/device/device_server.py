@@ -39,30 +39,27 @@ SESSION_NUM_MAX_LEN = 10
 LOG_ = None
 
 
-def LoadAttachedDevices() -> MicroTVMPlatforms:
+def LoadAttachedDevices(args: argparse.Namespace) -> MicroTVMPlatforms:
     """
     Load MicroTVM USB devices to a MicroTVMPlatforms.
 
     return: attached_devices
     """
     table = device_utils.LoadDeviceTable(args.table_file)
+    all_device_types = table.GetAllDeviceTypes()
     attached_devices = MicroTVMPlatforms()
 
-    for platform in device_utils.MICROTVM_PLATFORM_INFO.keys():
-        device_list = device_utils.ListConnectedDevices(platform)
-        for device in device_list:
-            serial_number = device["SerialNumber"]
-            device_type = table.GetType(serial_number)
-            if device_type:
-                new_device = MicroDevice(device_type, serial_number)
-                if device["State"] == "Captured":
-                    new_device.SetUser()
-                attached_devices.AddPlatform(new_device)
+    for micro_device in all_device_types:
+        device_list = device_utils.ListConnectedDevices(micro_device)
+        for new_device in device_list:
+            # Update type based on Device Table since some device share the same (vid, pid).
+            new_device.SetType(table.GetType(new_device.GetSerialNumber()))
+            attached_devices.AddPlatform(new_device)
     return attached_devices
 
 
 def Initialize(args):
-    platforms = LoadAttachedDevices()
+    platforms = LoadAttachedDevices(args)
     return platforms
 
 
@@ -160,7 +157,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--table-file",
         type=str,
-        default=device_utils.DEVICE_TABLE_FILE,
+        required=True,
         help="Json file include serial number of all instances.",
     )
     parser.add_argument("--port", type=int, default=50051, help="RPC port number.")

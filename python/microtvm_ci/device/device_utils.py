@@ -40,7 +40,7 @@ LOG_ = logging.getLogger()
 class MicroDevice(object):
     """A microTVM device instance."""
 
-    def __init__(self, type: str, serial_number: str) -> None:
+    def __init__(self, type: str, serial_number: str, vid_hex: str=None, pid_hex: str=None) -> None:
         """
         Parameters
         ----------
@@ -48,6 +48,10 @@ class MicroDevice(object):
             Device type.
         _serial_number : str
             Device serial number.
+        _vid_hex : str
+            VID number.
+        _pid_hex : str
+            PID number.
         _taken : bool
             If device is aquired.
         _user : str
@@ -57,6 +61,8 @@ class MicroDevice(object):
         """
         self._type = type
         self._serial_number = serial_number
+        self._vid_hex = vid_hex
+        self._pid_hex = pid_hex
         self._is_taken = False
         self._user = None
         self._enabled = True
@@ -67,6 +73,15 @@ class MicroDevice(object):
 
     def GetType(self) -> str:
         return self._type
+
+    def GetVID(self) -> str:
+        return self._vid_hex
+    
+    def GetPID(self) -> str:
+        return self._pid_hex
+
+    def SetType(self, type: str):
+        self._type = type
 
     def SetSerialNumber(self, serial_number: str):
         self._serial_number = serial_number
@@ -163,6 +178,15 @@ class MicroTVMPlatforms:
                 platform.Enable(status)
                 return True
         return False
+    
+    def GetAllDeviceTypes(self) -> list:
+        micro_device_list = list()
+        all_types = set()
+        for platform in self._platforms:
+            if platform.GetType() not in all_types:
+                all_types.add(platform.GetType())
+                micro_device_list.append(platform)
+        return micro_device_list
 
 def LoadDeviceTable(table_file: str) -> MicroTVMPlatforms:
     """Load device table Json file to MicroTVMPlatforms."""
@@ -171,7 +195,8 @@ def LoadDeviceTable(table_file: str) -> MicroTVMPlatforms:
         device_table = MicroTVMPlatforms()
         for device_type, config in data.items():
             for item in config["instances"]:
-                new_device = MicroDevice(type=device_type, serial_number=item)
+                new_device = MicroDevice(type=device_type, serial_number=item, 
+                    vid_hex=config["vid_hex"], pid_hex=config["pid_hex"])
                 device_table.AddPlatform(new_device)
     return device_table
 
@@ -185,7 +210,7 @@ def GetAllDeviceTypes() -> set():
     return device_types
 
 
-def ParseVirtualBoxDevices(microtvm_platform: str) -> list:
+def ParseVirtualBoxDevices(micro_device: MicroDevice) -> list:
     """Parse usb devices and return a list of devices maching microtvm_platform."""
 
     output = subprocess.check_output(
@@ -232,9 +257,9 @@ def ParseVirtualBoxDevices(microtvm_platform: str) -> list:
 
                     if (
                         current_dev["vid_hex"]
-                        == MICROTVM_PLATFORM_INFO[microtvm_platform]["vid_hex"]
+                        == micro_device.GetVID()
                         and current_dev["pid_hex"]
-                        == MICROTVM_PLATFORM_INFO[microtvm_platform]["pid_hex"]
+                        == micro_device.GetPID()
                     ):
                         devices.append(current_dev)
                 current_dev = {}
@@ -250,19 +275,24 @@ def ParseVirtualBoxDevices(microtvm_platform: str) -> list:
     return devices
 
 
-def ListConnectedDevices(microtvm_platform: str) -> list:
-    """List all platforms connected to this hardware node."""
+def ListConnectedDevices(micro_device: MicroDevice) -> list:
+    """List all platforms connected to this hardware node. Returns a list of MicroDevice."""
 
-    devices = ParseVirtualBoxDevices(microtvm_platform)
+    devices = ParseVirtualBoxDevices(micro_device)
     device_list = []
     for device in devices:
-        device_list.append(
-            {
-                "SerialNumber": device["SerialNumber"],
-                "UUID": device["UUID"],
-                "State": device["Current State"],
-            }
-        )
+        new_device = MicroDevice(type=micro_device.GetType(), 
+            serial_number=device["SerialNumber"], vid_hex=micro_device.GetVID(), pid_hex=micro_device.GetPID())
+        if device["Current State"] == "Captured":
+            new_device.SetUser()
+        device_list.append(new_device)
+        # device_list.append(
+        #     {
+        #         "SerialNumber": device["SerialNumber"],
+        #         "UUID": device["UUID"],
+        #         "State": device["Current State"],
+        #     }
+        # )
     return device_list
 
 
