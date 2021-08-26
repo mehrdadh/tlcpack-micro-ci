@@ -55,6 +55,11 @@ class RPCRequestStub(object):
                 request_serializer=microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
                 response_deserializer=microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.FromString,
                 )
+        self.RPCGetDeviceTypeInfo = channel.unary_unary(
+                '/microDevice.RPCRequest/RPCGetDeviceTypeInfo',
+                request_serializer=microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+                response_deserializer=microtvm__ci_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
+                )
 
 
 class RPCRequestServicer(object):
@@ -110,6 +115,12 @@ class RPCRequestServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def RPCGetDeviceTypeInfo(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_RPCRequestServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -152,6 +163,11 @@ def add_RPCRequestServicer_to_server(servicer, server):
                     servicer.RPCDeviceRequestDisable,
                     request_deserializer=microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
                     response_serializer=microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.SerializeToString,
+            ),
+            'RPCGetDeviceTypeInfo': grpc.unary_unary_rpc_method_handler(
+                    servicer.RPCGetDeviceTypeInfo,
+                    request_deserializer=microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.FromString,
+                    response_serializer=microtvm__ci_dot_device_dot_microDevice__pb2.DeviceReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -297,5 +313,22 @@ class RPCRequest(object):
         return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCDeviceRequestDisable',
             microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
             microtvm__ci_dot_device_dot_microDevice__pb2.StringMessage.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def RPCGetDeviceTypeInfo(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/microDevice.RPCRequest/RPCGetDeviceTypeInfo',
+            microtvm__ci_dot_device_dot_microDevice__pb2.DeviceMessage.SerializeToString,
+            microtvm__ci_dot_device_dot_microDevice__pb2.DeviceReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

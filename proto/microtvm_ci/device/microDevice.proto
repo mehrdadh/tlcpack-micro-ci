@@ -34,6 +34,7 @@ service RPCRequest {
   rpc RPCDeviceRequestList (StringMessage) returns (StringMessage) {} 
   rpc RPCDeviceRequestEnable (DeviceMessage) returns (StringMessage) {}
   rpc RPCDeviceRequestDisable (DeviceMessage) returns (StringMessage) {}
+  rpc RPCGetDeviceTypeInfo (DeviceMessage) returns (DeviceReply) {}
 }
 
 // The device request message
@@ -48,6 +49,8 @@ message DeviceMessage {
 message DeviceReply {
   string serial_number = 1;
   bool is_alive = 2;
+  string vid = 3;
+  string pid = 4;
 }
 
 message SessionMessage {

@@ -16,7 +16,6 @@
 # under the License.
 
 import pathlib
-from .device_server import LOG_
 import grpc
 import logging
 import argparse
@@ -35,18 +34,6 @@ LOG_ = logging.getLogger("MicroTVM Device Client")
 def get_artifact_filename(device: str) -> str:
     return f"serial_{device}.micro"
 
-
-LOG_ = logging.getLogger("MicroTVM Device Client")
-
-
-def get_artifact_filename(device: str) -> str:
-    return f"serial_{device}.micro"
-
-
-def test():
-    print("mehrdad")
-
-
 class GRPCMicroDevice:
     _device: MicroDevice = None
     _rpc_stub = None
@@ -55,7 +42,6 @@ class GRPCMicroDevice:
 
     def __init__(self, rpc_port: int, device_type: str):
         self._rpc_channel = grpc.insecure_channel(f"localhost:{rpc_port}")
-        # self._rpc_channel.subscribe(test())
         self._rpc_stub = microDevice_pb2_grpc.RPCRequestStub(self._rpc_channel)
         self._device = MicroDevice(type=device_type, serial_number="")
 
@@ -77,6 +63,8 @@ class GRPCMicroDevice:
             )
             if response.serial_number != "":
                 self._device.SetSerialNumber(response.serial_number)
+                self._device.SetVID(response.vid)
+                self._device.SetPID(response.pid)
 
     def ReleaseDevice(self):
         serial_number = self._device.GetSerialNumber()
@@ -121,36 +109,44 @@ class GRPCMicroDevice:
             )
         print(request.text)
 
-def server_request_device(args: argparse.Namespace) -> str:
+    def SetDeviceInfo(self):
+        request = self._rpc_stub.RPCGetDeviceTypeInfo(
+            microDevice_pb2.DeviceMessage(type=self._device.GetType())
+        )
+        self._device.SetVID(request.vid)
+        self._device.SetPID(request.pid)
+
+
+def server_request_device(args: argparse.Namespace) -> MicroDevice:
     grpc_device = GRPCMicroDevice(args.port, args.device)
     grpc_device.RequestDevice()
-    return grpc_device._device.GetSerialNumber()
+    return grpc_device._device
 
 
-def server_release_device(args: argparse.Namespace):
-    grpc_device = GRPCMicroDevice(args.port, args.device)
-    grpc_device._device.SetSerialNumber(args.serial)
+def server_release_device(port: int, device: str, serial_number: str):
+    grpc_device = GRPCMicroDevice(port, device)
+    grpc_device._device.SetSerialNumber(serial_number)
     grpc_device.ReleaseDevice()
-    print(f"Device {args.serial} released.")
+    print(f"Device {serial_number} released.")
 
 
 def attach_device(args: argparse.Namespace):
     assert args.vm_path, "Error: Reference VM path missing."
 
-    serial_number = server_request_device(args)
-    if not serial_number:
+    micro_device = server_request_device(args)
+    if not micro_device.GetSerialNumber():
         if args.wait:
             LOG_.info(f"Waiting for {args.device} device...")
-            while not serial_number:
-                serial_number = server_request_device(args)
+            while not micro_device.GetSerialNumber():
+                micro_device = server_request_device(args)
                 time.sleep(5)
         else:
             return
 
     try:
-        device_utils.attach(args.device, args.vm_path, serial_number)
+        device_utils.attach(micro_device, args.vm_path)
     except Exception as ex:
-        server_release_device(args)
+        server_release_device(args.port, args.device, micro_device.GetSerialNumber())
         raise RuntimeError(ex)
 
     if args.artifact_path:
@@ -159,8 +155,8 @@ def attach_device(args: argparse.Namespace):
             artifact_file.unlink()
         args.artifact_path.mkdir(parents=True, exist_ok=True)
         with open(artifact_file, "w") as f:
-            f.write(str(serial_number))
-    LOG_.info(f"Device {serial_number} attached.")
+            f.write(str(micro_device.GetSerialNumber()))
+    LOG_.info(f"Device {micro_device.GetSerialNumber()} attached.")
 
 
 def detach_device(args: argparse.Namespace):
@@ -172,24 +168,29 @@ def detach_device(args: argparse.Namespace):
     else:
         serial_number = args.serial
 
-    device_utils.detach(args.device, args.vm_path, serial_number)
+    # make a MicroDevice with serial number, pid and vid
+    grpc_micro_device = GRPCMicroDevice(args.port, args.device)
+    grpc_micro_device.SetDeviceInfo()
+    grpc_micro_device._device.SetSerialNumber(serial_number)
+
+    device_utils.detach(grpc_micro_device._device, args.vm_path)
     # Release device from the microTVM device server
-    server_release_device(args)
+    server_release_device(args.port, args.device, serial_number)
 
 
 def request_device(args: argparse.Namespace):
-    serial_number = server_request_device(args)
-    if not serial_number:
+    micro_device = server_request_device(args)
+    if not micro_device.GetSerialNumber():
         if args.wait:
             LOG_.info(f"Waiting for {args.device} device...")
-            while not serial_number:
-                serial_number = server_request_device(args)
+            while not micro_device.GetSerialNumber():
+                micro_device = server_request_device(args)
                 time.sleep(5)
-    return serial_number
+    return micro_device.GetSerialNumber()
 
 
 def release_device(args: argparse.Namespace):
-    server_release_device(args)
+    server_release_device(args.port, args.device, args.serial)
 
 
 def query_device(args: argparse.Namespace):

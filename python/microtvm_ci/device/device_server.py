@@ -39,30 +39,27 @@ SESSION_NUM_MAX_LEN = 10
 LOG_ = None
 
 
-def LoadAttachedDevices() -> MicroTVMPlatforms:
+def LoadAttachedDevices(args: argparse.Namespace) -> MicroTVMPlatforms:
     """
     Load MicroTVM USB devices to a MicroTVMPlatforms.
 
     return: attached_devices
     """
     table = device_utils.LoadDeviceTable(args.table_file)
+    all_device_types = table.GetAllDeviceTypes()
     attached_devices = MicroTVMPlatforms()
 
-    for platform in device_utils.MICROTVM_PLATFORM_INFO.keys():
-        device_list = device_utils.ListConnectedDevices(platform)
-        for device in device_list:
-            serial_number = device["SerialNumber"]
-            device_type = table.GetType(serial_number)
-            if device_type:
-                new_device = MicroDevice(device_type, serial_number)
-                if device["State"] == "Captured":
-                    new_device.SetUser()
-                attached_devices.AddPlatform(new_device)
+    for micro_device in all_device_types:
+        device_list = device_utils.ListConnectedDevices(micro_device)
+        for new_device in device_list:
+            # Update type based on Device Table since some device share the same (vid, pid).
+            new_device.SetType(table.GetType(new_device.GetSerialNumber()))
+            attached_devices.AddPlatform(new_device)
     return attached_devices
 
 
 def Initialize(args):
-    platforms = LoadAttachedDevices()
+    platforms = LoadAttachedDevices(args)
     return platforms
 
 
@@ -70,17 +67,19 @@ class RPCRequest(microDevice_pb2_grpc.RPCRequestServicer):
     global PLATFORMS
 
     def RPCDeviceRequest(self, request, context):
-        metadict = dict(context.invocation_metadata())
-
         assert request.type
         assert request.session_number
         assert request.user
-        serial_num = PLATFORMS.GetPlatform(
+        micro_device = PLATFORMS.GetPlatform(
             request.type, request.session_number, request.user
         )
-        LOG_.debug(f"Platform {serial_num} assigned.")
-        LOG_.debug(PLATFORMS)
-        return microDevice_pb2.DeviceReply(serial_number=f"{serial_num}")
+        if micro_device:
+            LOG_.debug(f"Platform {micro_device.GetSerialNumber()} assigned.")
+            LOG_.debug(PLATFORMS)
+            return microDevice_pb2.DeviceReply(serial_number=micro_device.GetSerialNumber(), 
+                vid=micro_device.GetVID(), pid=micro_device.GetPID())
+        else:
+            return microDevice_pb2.DeviceReply(serial_number="")            
 
     def RPCDeviceRelease(self, request, context):
         assert request.type
@@ -142,6 +141,11 @@ class RPCRequest(microDevice_pb2_grpc.RPCRequestServicer):
             return microDevice_pb2.StringMessage(text="Disable Success.")
         else:
             return microDevice_pb2.StringMessage(text="Disable failed.")
+    
+    def RPCGetDeviceTypeInfo(self, request, context):
+        assert request.type
+        micro_device = PLATFORMS.GetDeviceWithType(device_type=request.type)
+        return microDevice_pb2.DeviceReply(vid=micro_device.GetVID(), pid=micro_device.GetPID())
 
 def ServerStart(args):
     global PLATFORMS
@@ -160,7 +164,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--table-file",
         type=str,
-        default=device_utils.DEVICE_TABLE_FILE,
+        required=True,
         help="Json file include serial number of all instances.",
     )
     parser.add_argument("--port", type=int, default=50051, help="RPC port number.")

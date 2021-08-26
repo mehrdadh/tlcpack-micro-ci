@@ -1,31 +1,12 @@
 import argparse
 import subprocess
-import logging as _LOG
 import re
 import os
 import enum
 import json
 from tabulate import tabulate
 import logging
-
-MICROTVM_PLATFORM_INFO = {
-    "nrf5340dk": {"manufacturer": "SEGGER", "vid_hex": "1366", "pid_hex": "1055"},
-    "stm32f746xx_nucleo": {
-        "manufacturer": "STMicroelectronics",
-        "vid_hex": "0483",
-        "pid_hex": "374b",
-    },
-    "stm32f746xx_disco": {
-        "manufacturer": "STMicroelectronics",
-        "vid_hex": "0483",
-        "pid_hex": "374b",
-    },
-    "stm32l4r5zi_nucleo": {
-        "manufacturer": "STMicroelectronics",
-        "vid_hex": "0483",
-        "pid_hex": "374b",
-    },
-}
+import copy
 
 VIRTUALBOX_VID_PID_RE = re.compile(r"0x([0-9A-Fa-f]{4}).*")
 
@@ -34,13 +15,13 @@ DEVICE_TABLE_FILE = os.path.join(
     "device_table.json"
 )
 
-LOG_ = logging.getLogger()
-
+logging.basicConfig(level=logging.INFO)
+LOG_ = logging.getLogger("Device Utils")
 
 class MicroDevice(object):
     """A microTVM device instance."""
 
-    def __init__(self, type: str, serial_number: str) -> None:
+    def __init__(self, type: str, serial_number: str, vid_hex: str=None, pid_hex: str=None) -> None:
         """
         Parameters
         ----------
@@ -48,7 +29,11 @@ class MicroDevice(object):
             Device type.
         _serial_number : str
             Device serial number.
-        _taken : bool
+        _vid_hex : str
+            VID number.
+        _pid_hex : str
+            PID number.
+        _is_taken : bool
             If device is aquired.
         _user : str
             Username who aquired this device.
@@ -57,6 +42,8 @@ class MicroDevice(object):
         """
         self._type = type
         self._serial_number = serial_number
+        self._vid_hex = vid_hex
+        self._pid_hex = pid_hex
         self._is_taken = False
         self._user = None
         self._enabled = True
@@ -68,9 +55,24 @@ class MicroDevice(object):
     def GetType(self) -> str:
         return self._type
 
+    def GetVID(self) -> str:
+        return self._vid_hex
+    
+    def GetPID(self) -> str:
+        return self._pid_hex
+
+    def SetType(self, type: str):
+        self._type = type
+
     def SetSerialNumber(self, serial_number: str):
         self._serial_number = serial_number
 
+    def SetVID(self, vid: str):
+        self._vid_hex = vid
+    
+    def SetPID(self, pid: str):
+        self._pid_hex = pid
+    
     def SetTaken(self):
         self._is_taken = True
 
@@ -141,14 +143,15 @@ class MicroTVMPlatforms:
                 return platform._type
 
     def GetPlatform(self, type: str, session_number: str, username: str) -> str:
+        """Gets a MicroDevice from platform list."""
         for platform in self._platforms:
             if platform._type == type and not platform._is_taken and platform._enabled:
                 platform._is_taken = True
                 platform._user = username
                 serial_number = platform.GetSerialNumber()
                 self._sessions[session_number].append(serial_number)
-                return serial_number
-        return ""
+                return copy.copy(platform)
+        return None
 
     def ReleasePlatform(self, serial_number: str):
         for platform in self._platforms:
@@ -163,6 +166,21 @@ class MicroTVMPlatforms:
                 platform.Enable(status)
                 return True
         return False
+    
+    def GetAllDeviceTypes(self) -> list:
+        micro_device_list = list()
+        all_types = set()
+        for platform in self._platforms:
+            if platform.GetType() not in all_types:
+                all_types.add(platform.GetType())
+                micro_device_list.append(platform)
+        return micro_device_list
+
+    def GetDeviceWithType(self, device_type: str) -> MicroDevice:
+        for platform in self._platforms:
+            if platform.GetType() == device_type:
+                return copy.copy(platform)
+        return None
 
 def LoadDeviceTable(table_file: str) -> MicroTVMPlatforms:
     """Load device table Json file to MicroTVMPlatforms."""
@@ -171,7 +189,8 @@ def LoadDeviceTable(table_file: str) -> MicroTVMPlatforms:
         device_table = MicroTVMPlatforms()
         for device_type, config in data.items():
             for item in config["instances"]:
-                new_device = MicroDevice(type=device_type, serial_number=item)
+                new_device = MicroDevice(type=device_type, serial_number=item, 
+                    vid_hex=config["vid_hex"], pid_hex=config["pid_hex"])
                 device_table.AddPlatform(new_device)
     return device_table
 
@@ -185,7 +204,7 @@ def GetAllDeviceTypes() -> set():
     return device_types
 
 
-def ParseVirtualBoxDevices(microtvm_platform: str) -> list:
+def ParseVirtualBoxDevices(micro_device: MicroDevice) -> list:
     """Parse usb devices and return a list of devices maching microtvm_platform."""
 
     output = subprocess.check_output(
@@ -200,13 +219,13 @@ def ParseVirtualBoxDevices(microtvm_platform: str) -> list:
                     # Update VendorId and ProductId to hex
                     m = VIRTUALBOX_VID_PID_RE.match(current_dev["VendorId"])
                     if not m:
-                        _LOG.warning("Malformed VendorId: %s", current_dev["VendorId"])
+                        LOG_.warning("Malformed VendorId: %s", current_dev["VendorId"])
                         current_dev = {}
                         continue
 
                     m = VIRTUALBOX_VID_PID_RE.match(current_dev["ProductId"])
                     if not m:
-                        _LOG.warning(
+                        LOG_.warning(
                             "Malformed ProductId: %s", current_dev["ProductId"]
                         )
                         current_dev = {}
@@ -232,9 +251,9 @@ def ParseVirtualBoxDevices(microtvm_platform: str) -> list:
 
                     if (
                         current_dev["vid_hex"]
-                        == MICROTVM_PLATFORM_INFO[microtvm_platform]["vid_hex"]
+                        == micro_device.GetVID()
                         and current_dev["pid_hex"]
-                        == MICROTVM_PLATFORM_INFO[microtvm_platform]["pid_hex"]
+                        == micro_device.GetPID()
                     ):
                         devices.append(current_dev)
                 current_dev = {}
@@ -250,39 +269,27 @@ def ParseVirtualBoxDevices(microtvm_platform: str) -> list:
     return devices
 
 
-def ListConnectedDevices(microtvm_platform: str) -> list:
-    """List all platforms connected to this hardware node."""
+def ListConnectedDevices(micro_device: MicroDevice) -> list:
+    """List all platforms connected to this hardware node. Returns a list of MicroDevice."""
 
-    devices = ParseVirtualBoxDevices(microtvm_platform)
+    devices = ParseVirtualBoxDevices(micro_device)
     device_list = []
     for device in devices:
-        device_list.append(
-            {
-                "SerialNumber": device["SerialNumber"],
-                "UUID": device["UUID"],
-                "State": device["Current State"],
-            }
-        )
+        new_device = MicroDevice(type=micro_device.GetType(), 
+            serial_number=device["SerialNumber"], vid_hex=micro_device.GetVID(), pid_hex=micro_device.GetPID())
+        if device["Current State"] == "Captured":
+            new_device.SetUser()
+        device_list.append(new_device)
+
     return device_list
 
 
-def DeviceIsAlive(platform: str, serial: str) -> bool:
-    devices = ListConnectedDevices(platform)
+def DeviceIsAlive(device_type: str, serial: str) -> bool:
+    devices = ListConnectedDevices(MicroDevice(device_type, serial_number=serial))
     for device in devices:
-        if device["SerialNumber"] == serial:
+        if device.GetSerialNumber() == serial:
             return True
     return False
-
-
-def command_list(args: argparse.Namespace):
-    """Print connected MicroTVM devices."""
-
-    devices = ListConnectedDevices(args.microtvm_platform)
-    results = ""
-    for device in devices:
-        results += f"SerialNumber:{device['SerialNumber']}\tUUID: {device['UUID']}\tState:{device['State']}\n"
-    print(results)
-
 
 def VirtualBoxGetInfo(machine_uuid: str) -> dict:
     """
@@ -293,7 +300,7 @@ def VirtualBoxGetInfo(machine_uuid: str) -> dict:
     )
     machine_info = {}
     for line in output.split("\n"):
-        _LOG.debug(line)
+        LOG_.debug(line)
         try:
             key, value = line.split(":", 1)
             value = value.lstrip(" ")
@@ -307,7 +314,7 @@ def VirtualBoxGetInfo(machine_uuid: str) -> dict:
                 machine_info[key] = value
         except:
             continue
-    _LOG.debug(f"machine info:\n{machine_info}")
+    LOG_.debug(f"machine info:\n{machine_info}")
     return machine_info
 
 
@@ -322,17 +329,17 @@ def virtualbox_is_live(machine_uuid: str):
 
 
 def attach_command(args):
-    attach(args.microtvm_platform, args.vm_path, args.serial)
+    attach(MicroDevice(type=args.microtvm_platform, serial_number=args.serial), args.vm_path)
 
 
-def attach(microtvm_platfrom: str, vm_path: str, serial_number: str):
+def attach(micro_device: MicroDevice, vm_path: str):
     """
     Attach a microTVM platform to a virtualbox.
     """
-    usb_devices = ParseVirtualBoxDevices(microtvm_platfrom)
+    usb_devices = ParseVirtualBoxDevices(micro_device)
     found = False
     for dev in usb_devices:
-        if dev["SerialNumber"] == serial_number:
+        if dev["SerialNumber"] == micro_device.GetSerialNumber():
             vid_hex = dev["vid_hex"]
             pid_hex = dev["pid_hex"]
             serial = dev["SerialNumber"]
@@ -342,7 +349,7 @@ def attach(microtvm_platfrom: str, vm_path: str, serial_number: str):
 
     if not found:
         LOG_.warning(f"Device list:\n{usb_devices}")
-        raise ValueError(f"Device S/N {serial_number} not found.")
+        raise ValueError(f"Device S/N {micro_device.GetSerialNumber()} not found.")
 
     with open(
         os.path.join(vm_path, ".vagrant", "machines", "default", "virtualbox", "id")
@@ -373,7 +380,7 @@ def attach(microtvm_platfrom: str, vm_path: str, serial_number: str):
         machine_info = VirtualBoxGetInfo(machine_uuid)
         if "SerialNumber" in machine_info:
             if serial in machine_info["SerialNumber"]:
-                _LOG.info(f"Device {serial} already attached.")
+                LOG_.info(f"Device {serial} already attached.")
                 return
 
         # if virtualbox_is_live(machine_uuid):
@@ -383,7 +390,7 @@ def attach(microtvm_platfrom: str, vm_path: str, serial_number: str):
         subprocess.check_call(
             ["VBoxManage", "controlvm", machine_uuid, "usbattach", dev_uuid]
         )
-        _LOG.info(f"USB with S/N {serial} attached.")
+        LOG_.info(f"USB with S/N {serial} attached.")
         return
     else:
         raise Exception(
@@ -391,24 +398,22 @@ def attach(microtvm_platfrom: str, vm_path: str, serial_number: str):
         )
 
 
-def detach(microtvm_platfrom: str, vm_path: str, serial_number: str):
+def detach(micro_device: MicroDevice, vm_path: str):
     with open(
         os.path.join(vm_path, ".vagrant", "machines", "default", "virtualbox", "id")
     ) as f:
         machine_uuid = f.read()
 
-    usb_devices = ParseVirtualBoxDevices(microtvm_platfrom)
+    usb_devices = ParseVirtualBoxDevices(micro_device)
     found = False
     for dev in usb_devices:
-        if dev["SerialNumber"] == serial_number:
-            vid_hex = dev["vid_hex"]
-            pid_hex = dev["pid_hex"]
-            serial = dev["SerialNumber"]
+        if dev["SerialNumber"] == micro_device.GetSerialNumber():
             dev_uuid = dev["UUID"]
             found = True
             break
+
     if not found:
-        LOG_.warning(f"Serial {serial_number} not found in usb devies.")
+        LOG_.warning(f"Serial {micro_device.GetSerialNumber()} not found in usb devies.")
         LOG_.warning(usb_devices)
         return
     subprocess.check_call(
@@ -419,11 +424,6 @@ def detach(microtvm_platfrom: str, vm_path: str, serial_number: str):
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help="Action to perform.")
-
-    parser_list = subparsers.add_parser(
-        "list", help="List connected devices for a target."
-    )
-    parser_list.set_defaults(func=command_list)
 
     parser_attach = subparsers.add_parser(
         "attach", help="Attach a microTVM device to a virtual machine."
@@ -447,8 +447,8 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
     if args.log_level:
-        _LOG.basicConfig(level=args.log_level)
+        LOG_.basicConfig(level=args.log_level)
     else:
-        _LOG.basicConfig(level="INFO")
+        LOG_.basicConfig(level="INFO")
 
     args.func(args)

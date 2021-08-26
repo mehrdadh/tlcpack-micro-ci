@@ -16,28 +16,26 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-# Usage: scripts/ci/microtvm_server_init.sh [--table-file <Device Table Json File>]
+# Usage: scripts/device_release.sh <DEVICE_TYPE> <DEVICE_SERIAL>
 #
 
 cd "$(dirname "$0")"
-source "./ci_util.sh" || exit 2
+source "./util.sh" || exit 2
 
 cd "$(get_repo_root)"
 
-if [ "$1" == "--help" -o "$1" == "-h" ]; then
-    echo "Usage: scripts/ci/microtvm_server_init.sh [--table-file <Device Table Json File>]"
+if [ "$#" -lt 2 -o "$1" == "--help" ]; then
+    echo "Usage: scripts/device_release.sh <DEVICE_TYPE> <DEVICE_SERIAL>"
     exit -1
 fi
 
-if [ "$1" == "--table-file" ]; then
-    shift 1
-    device_table_path=$1
-    shift 1
-else
-    device_table_path="python/microtvm_ci/device/device_table.json"
-fi
+device_type=$1
+shift
+device_serial=$1
+shift
 
-${HOME}/.poetry/bin/poetry install
-${HOME}/.poetry/bin/poetry run python -m microtvm_ci.device.device_server \
-    --table-file="${device_table_path}" \
-    --log-level=DEBUG
+source $HOME/.poetry/env
+poetry run python -m microtvm_ci.device.device_client \
+    "release" \
+    --device="${device_type}" \
+    --serial="${device_serial}"
