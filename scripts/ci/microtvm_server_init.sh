@@ -36,7 +36,7 @@ if [ "$1" == "--table-file" ]; then
 else
     device_table_path="python/microtvm_ci/device/device_table.json"
 fi
-echo $device_table_path
+
 ${HOME}/.poetry/bin/poetry install
 ${HOME}/.poetry/bin/poetry run python -m microtvm_ci.device.device_server \
     --table-file="${device_table_path}" \

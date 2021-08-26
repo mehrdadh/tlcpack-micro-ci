@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-# Usage: scripts/ci/0_init.sh [--service-name <microTVM Service Name>]
+# Usage: scripts/ci/0_init.sh [--service-name <microTVM Service Name>] [--table-file <Device Table File>]
 #
 cd "$(dirname "$0")"
 source "./ci_util.sh" || exit 2
@@ -24,7 +24,7 @@ source "./ci_util.sh" || exit 2
 cd "$(get_repo_root)"
 
 if [ "$1" == "--help" ]; then
-    echo "Usage: scripts/ci/0_init.sh"
+    echo "Usage: scripts/ci/0_init.sh [--service-name <microTVM Service Name>] [--table-file <Device Table File>]"
     exit -1
 fi
 
@@ -34,6 +34,14 @@ if [ "$1" == "--service-name" ]; then
     shift 1
 else
     service_name="microtvm_server.service"
+fi
+
+if [ "$1" == "--table-file" ]; then
+    shift 1
+    table_file="--table-file $1"
+    shift 1
+else
+    table_file=""
 fi
 
 # Setup MicroTVM device service
@@ -48,6 +56,9 @@ microtvm_server_script_path="$(get_repo_root)/scripts/ci/microtvm_server_init.sh
 sudo rm -f "${service_file_path}"
 
 temp_file="./service.temp"
+rm -f ${temp_file}
+touch ${temp_file}
+
 cat >> ${temp_file} <<EOF
 [Unit]
 Description=MicroTVM Device Server
@@ -58,7 +69,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=$USER
-ExecStart=/bin/bash ${microtvm_server_script_path}
+ExecStart=/bin/bash ${microtvm_server_script_path} ${table_file}
 [Install]
 WantedBy=multi-user.target
 EOF
