@@ -1,12 +1,12 @@
 import argparse
 import subprocess
-import logging as _LOG
 import re
 import os
 import enum
 import json
 from tabulate import tabulate
 import logging
+import copy
 
 MICROTVM_PLATFORM_INFO = {
     "nrf5340dk": {"manufacturer": "SEGGER", "vid_hex": "1366", "pid_hex": "1055"},
@@ -34,8 +34,8 @@ DEVICE_TABLE_FILE = os.path.join(
     "device_table.json"
 )
 
-LOG_ = logging.getLogger()
-
+logging.basicConfig(level=logging.INFO)
+LOG_ = logging.getLogger("Device Utils")
 
 class MicroDevice(object):
     """A microTVM device instance."""
@@ -86,6 +86,12 @@ class MicroDevice(object):
     def SetSerialNumber(self, serial_number: str):
         self._serial_number = serial_number
 
+    def SetVID(self, vid: str):
+        self._vid_hex = vid
+    
+    def SetPID(self, pid: str):
+        self._pid_hex = pid
+    
     def SetTaken(self):
         self._is_taken = True
 
@@ -156,14 +162,15 @@ class MicroTVMPlatforms:
                 return platform._type
 
     def GetPlatform(self, type: str, session_number: str, username: str) -> str:
+        """Gets a MicroDevice from platform list."""
         for platform in self._platforms:
             if platform._type == type and not platform._is_taken and platform._enabled:
                 platform._is_taken = True
                 platform._user = username
                 serial_number = platform.GetSerialNumber()
                 self._sessions[session_number].append(serial_number)
-                return serial_number
-        return ""
+                return copy.copy(platform)
+        return None
 
     def ReleasePlatform(self, serial_number: str):
         for platform in self._platforms:
@@ -225,13 +232,13 @@ def ParseVirtualBoxDevices(micro_device: MicroDevice) -> list:
                     # Update VendorId and ProductId to hex
                     m = VIRTUALBOX_VID_PID_RE.match(current_dev["VendorId"])
                     if not m:
-                        _LOG.warning("Malformed VendorId: %s", current_dev["VendorId"])
+                        LOG_.warning("Malformed VendorId: %s", current_dev["VendorId"])
                         current_dev = {}
                         continue
 
                     m = VIRTUALBOX_VID_PID_RE.match(current_dev["ProductId"])
                     if not m:
-                        _LOG.warning(
+                        LOG_.warning(
                             "Malformed ProductId: %s", current_dev["ProductId"]
                         )
                         current_dev = {}
@@ -306,7 +313,7 @@ def VirtualBoxGetInfo(machine_uuid: str) -> dict:
     )
     machine_info = {}
     for line in output.split("\n"):
-        _LOG.debug(line)
+        LOG_.debug(line)
         try:
             key, value = line.split(":", 1)
             value = value.lstrip(" ")
@@ -320,7 +327,7 @@ def VirtualBoxGetInfo(machine_uuid: str) -> dict:
                 machine_info[key] = value
         except:
             continue
-    _LOG.debug(f"machine info:\n{machine_info}")
+    LOG_.debug(f"machine info:\n{machine_info}")
     return machine_info
 
 
@@ -335,17 +342,17 @@ def virtualbox_is_live(machine_uuid: str):
 
 
 def attach_command(args):
-    attach(args.microtvm_platform, args.vm_path, args.serial)
+    attach(MicroDevice(type=args.microtvm_platform, serial_number=args.serial), args.vm_path)
 
 
-def attach(device_type: str, vm_path: str, serial_number: str):
+def attach(micro_device: MicroDevice, vm_path: str):
     """
     Attach a microTVM platform to a virtualbox.
     """
-    usb_devices = ParseVirtualBoxDevices(MicroDevice(type=device_type, serial_number=serial_number))
+    usb_devices = ParseVirtualBoxDevices(micro_device)
     found = False
     for dev in usb_devices:
-        if dev["SerialNumber"] == serial_number:
+        if dev["SerialNumber"] == micro_device.GetSerialNumber():
             vid_hex = dev["vid_hex"]
             pid_hex = dev["pid_hex"]
             serial = dev["SerialNumber"]
@@ -355,7 +362,7 @@ def attach(device_type: str, vm_path: str, serial_number: str):
 
     if not found:
         LOG_.warning(f"Device list:\n{usb_devices}")
-        raise ValueError(f"Device S/N {serial_number} not found.")
+        raise ValueError(f"Device S/N {micro_device.GetSerialNumber()} not found.")
 
     with open(
         os.path.join(vm_path, ".vagrant", "machines", "default", "virtualbox", "id")
@@ -386,7 +393,7 @@ def attach(device_type: str, vm_path: str, serial_number: str):
         machine_info = VirtualBoxGetInfo(machine_uuid)
         if "SerialNumber" in machine_info:
             if serial in machine_info["SerialNumber"]:
-                _LOG.info(f"Device {serial} already attached.")
+                LOG_.info(f"Device {serial} already attached.")
                 return
 
         # if virtualbox_is_live(machine_uuid):
@@ -396,7 +403,7 @@ def attach(device_type: str, vm_path: str, serial_number: str):
         subprocess.check_call(
             ["VBoxManage", "controlvm", machine_uuid, "usbattach", dev_uuid]
         )
-        _LOG.info(f"USB with S/N {serial} attached.")
+        LOG_.info(f"USB with S/N {serial} attached.")
         return
     else:
         raise Exception(
@@ -452,8 +459,8 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
     if args.log_level:
-        _LOG.basicConfig(level=args.log_level)
+        LOG_.basicConfig(level=args.log_level)
     else:
-        _LOG.basicConfig(level="INFO")
+        LOG_.basicConfig(level="INFO")
 
     args.func(args)

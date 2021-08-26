@@ -67,17 +67,19 @@ class RPCRequest(microDevice_pb2_grpc.RPCRequestServicer):
     global PLATFORMS
 
     def RPCDeviceRequest(self, request, context):
-        metadict = dict(context.invocation_metadata())
-
         assert request.type
         assert request.session_number
         assert request.user
-        serial_num = PLATFORMS.GetPlatform(
+        micro_device = PLATFORMS.GetPlatform(
             request.type, request.session_number, request.user
         )
-        LOG_.debug(f"Platform {serial_num} assigned.")
-        LOG_.debug(PLATFORMS)
-        return microDevice_pb2.DeviceReply(serial_number=f"{serial_num}")
+        if micro_device:
+            LOG_.debug(f"Platform {micro_device.GetSerialNumber()} assigned.")
+            LOG_.debug(PLATFORMS)
+            return microDevice_pb2.DeviceReply(serial_number=micro_device.GetSerialNumber(), 
+                vid=micro_device.GetVID(), pid=micro_device.GetPID())
+        else:
+            return microDevice_pb2.DeviceReply(serial_number="")            
 
     def RPCDeviceRelease(self, request, context):
         assert request.type

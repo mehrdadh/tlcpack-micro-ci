@@ -48,6 +48,8 @@ message DeviceMessage {
 message DeviceReply {
   string serial_number = 1;
   bool is_alive = 2;
+  string vid = 3;
+  string pid = 4;
 }
 
 message SessionMessage {
