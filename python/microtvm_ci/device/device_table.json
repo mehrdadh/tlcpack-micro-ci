@@ -4,6 +4,7 @@
         "pid_hex": "374b",
         "manufacturer": "STMicroelectronics",
         "instances": [
+            "x"
         ]
         },
     "stm32f746xx_disco": {
@@ -11,6 +12,7 @@
         "pid_hex": "374b",
         "manufacturer": "STMicroelectronics",
         "instances": [
+            "x"
         ]
     },
     "nrf5340dk": {
@@ -18,6 +20,7 @@
         "pid_hex": "1055",
         "manufacturer": "SEGGER",
         "instances": [
+            "x"
         ]
     },
     "stm32l4r5zi_nucleo": {
@@ -25,6 +28,31 @@
         "pid_hex": "374b",
         "manufacturer": "STMicroelectronics",
         "instances": [
+            "x"
+        ]
+    },
+    "nano33ble": {
+        "vid_hex": "2341",
+        "pid_hex": "805a",
+        "manufacturer": "NA",
+        "instances": [
+            "x"
+        ]
+    },
+    "due": {
+        "vid_hex": "2341",
+        "pid_hex": "003d",
+        "manufacturer": "NA",
+        "instances": [
+            "x"
+        ]
+    },
+    "spresense": {
+        "vid_hex": "10c4",
+        "pid_hex": "ea60",
+        "manufacturer": "NA",
+        "instances": [
+            "x"
         ]
     }
 }
