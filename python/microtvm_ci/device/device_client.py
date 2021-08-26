@@ -127,11 +127,11 @@ def server_request_device(args: argparse.Namespace) -> str:
     return grpc_device._device.GetSerialNumber()
 
 
-def server_release_device(args: argparse.Namespace):
-    grpc_device = GRPCMicroDevice(args.port, args.device)
-    grpc_device._device.SetSerialNumber(args.serial)
+def server_release_device(port: int, device: str, serial_number: str):
+    grpc_device = GRPCMicroDevice(port, device)
+    grpc_device._device.SetSerialNumber(serial_number)
     grpc_device.ReleaseDevice()
-    print(f"Device {args.serial} released.")
+    print(f"Device {serial_number} released.")
 
 
 def attach_device(args: argparse.Namespace):
@@ -150,7 +150,7 @@ def attach_device(args: argparse.Namespace):
     try:
         device_utils.attach(args.device, args.vm_path, serial_number)
     except Exception as ex:
-        server_release_device(args)
+        server_release_device(args.port, args.device, serial_number)
         raise RuntimeError(ex)
 
     if args.artifact_path:
@@ -174,7 +174,7 @@ def detach_device(args: argparse.Namespace):
 
     device_utils.detach(args.device, args.vm_path, serial_number)
     # Release device from the microTVM device server
-    server_release_device(args)
+    server_release_device(args.port, args.device, serial_number)
 
 
 def request_device(args: argparse.Namespace):
