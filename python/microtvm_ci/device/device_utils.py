@@ -10,10 +10,15 @@ import copy
 
 VIRTUALBOX_VID_PID_RE = re.compile(r"0x([0-9A-Fa-f]{4}).*")
 
-DEVICE_TABLE_FILE = os.path.join(
-    os.path.dirname(__file__),
-    "device_table.json"
-)
+MICRO_DEVICE_TYPES = [
+    "stm32f746xx_nucleo",
+    "stm32f746xx_disco",
+    "nrf5340dk",
+    "stm32l4r5zi_nucleo",
+    "nano33ble",
+    "due",
+    "spresense"
+]
 
 logging.basicConfig(level=logging.INFO)
 LOG_ = logging.getLogger("Device Utils")
@@ -193,15 +198,6 @@ def LoadDeviceTable(table_file: str) -> MicroTVMPlatforms:
                     vid_hex=config["vid_hex"], pid_hex=config["pid_hex"])
                 device_table.AddPlatform(new_device)
     return device_table
-
-
-def GetAllDeviceTypes() -> set():
-    """Generates all device types that are available on this hardware node."""
-    device_table = LoadDeviceTable(DEVICE_TABLE_FILE)
-    device_types = set()
-    for device in device_table._platforms:
-        device_types.add(device.GetType())
-    return device_types
 
 
 def ParseVirtualBoxDevices(micro_device: MicroDevice) -> list:
@@ -436,7 +432,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--microtvm-platform",
         required=True,
-        choices=GetAllDeviceTypes(),
+        choices=MICRO_DEVICE_TYPES,
         help=("microTVM target platform for list."),
     )
 

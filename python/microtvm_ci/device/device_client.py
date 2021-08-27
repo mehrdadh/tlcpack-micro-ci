@@ -202,8 +202,17 @@ def query_device(args: argparse.Namespace):
     else:
         print(grpc_device.RequestList())
 
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
+
+    device_arg = ["--device", 
+        {"type": str, "required": True, "choices": device_utils.MICRO_DEVICE_TYPES, 
+            "help": "MicroTVM device to request."}]
+    serial_arg = ["--serial", {"type": str, "default": None, "help": "Device serial number."}]
+    vm_path_arg = ["--vm-path", {"type": pathlib.Path, "required": True, "help": "Path to Reference virtualbox."}]
+    artifact_path_arg = ["--artifact-path", {"type": pathlib.Path, "default": None, "help": "Path to store device artifact."}]
+
     subparsers = parser.add_subparsers(help="Action to perform.")
     parser.add_argument(
         "--port",
@@ -216,56 +225,22 @@ def parse_args() -> argparse.Namespace:
         "attach", help="Request a device and attach a virtual machine."
     )
     parser_attach.set_defaults(func=attach_device)
-    parser_attach.add_argument(
-        "--device",
-        type=str,
-        required=True,
-        choices=device_utils.GetAllDeviceTypes(),
-        help="MicroTVM device to request.",
-    )
-    parser_attach.add_argument(
-        "--vm-path",
-        type=pathlib.Path,
-        required=True,
-        help="Path to Reference virtualbox.",
-    )
+    parser_attach.add_argument(device_arg[0], **device_arg[1])
+    parser_attach.add_argument(vm_path_arg[0], **vm_path_arg[1])
     parser_attach.add_argument(
         "--wait", action="store_true", help="Wait if device not available."
     )
-    parser_attach.add_argument(
-        "--artifact-path",
-        type=pathlib.Path,
-        default=None,
-        help="Path to store device artifact.",
-    )
+    parser_attach.add_argument(artifact_path_arg[0], **artifact_path_arg[1])
 
     parser_detach = subparsers.add_parser(
         "detach",
         help="Detach the device from virtual machine and release from device server.",
     )
     parser_detach.set_defaults(func=detach_device)
-    parser_detach.add_argument(
-        "--device",
-        type=str,
-        required=True,
-        choices=device_utils.GetAllDeviceTypes(),
-        help="MicroTVM device to request.",
-    )
-    parser_detach.add_argument(
-        "--vm-path",
-        type=pathlib.Path,
-        required=True,
-        help="Path to Reference virtualbox.",
-    )
-    parser_detach.add_argument(
-        "--artifact-path",
-        type=pathlib.Path,
-        default=None,
-        help="Path device artifact serial number file. Use this or --serial for serial number.",
-    )
-    parser_detach.add_argument(
-        "--serial", type=str, default=None, help="Device serial number."
-    )
+    parser_detach.add_argument(device_arg[0], **device_arg[1])
+    parser_detach.add_argument(vm_path_arg[0], **vm_path_arg[1])
+    parser_detach.add_argument(artifact_path_arg[0], **artifact_path_arg[1])
+    parser_detach.add_argument(serial_arg[0], **serial_arg[1])
 
     parser_request = subparsers.add_parser(
         "request", help="Request a device from device server."
@@ -279,16 +254,8 @@ def parse_args() -> argparse.Namespace:
         "release", help="Release a device from device server."
     )
     parser_release.set_defaults(func=release_device)
-    parser_release.add_argument(
-        "--device",
-        type=str,
-        required=True,
-        choices=device_utils.GetAllDeviceTypes(),
-        help="MicroTVM device to request.",
-    )
-    parser_release.add_argument(
-        "--serial", type=str, default=None, help="Device serial number."
-    )
+    parser_release.add_argument(device_arg[0], **device_arg[1])
+    parser_release.add_argument(serial_arg[0], **serial_arg[1])
 
     parser_query = subparsers.add_parser(
         "query", help="Query devices from server."
@@ -300,9 +267,7 @@ def parse_args() -> argparse.Namespace:
     parser_query.add_argument(
         "--disable", action="store_true", help="Disable a device on server."
     )
-    parser_query.add_argument(
-        "--serial", type=str, default=None, help="Device serial number. Used with enable/disable sub-command."
-    )
+    parser_query.add_argument(serial_arg[0], **serial_arg[1])
 
     return parser.parse_args()
 
