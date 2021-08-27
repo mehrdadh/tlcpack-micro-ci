@@ -200,9 +200,6 @@ def LoadDeviceTable(table_file: str) -> MicroTVMPlatforms:
     return device_table
 
 
-def GetAllDeviceTypes() -> list:
-    return MICRO_DEVICE_TYPES
-
 def ParseVirtualBoxDevices(micro_device: MicroDevice) -> list:
     """Parse usb devices and return a list of devices maching microtvm_platform."""
 
