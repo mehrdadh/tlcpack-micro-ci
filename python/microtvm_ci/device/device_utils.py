@@ -143,9 +143,11 @@ class MicroTVMPlatforms:
             self._platforms.append(device)
 
     def GetType(self, serial_number: str) -> str:
+        """Returns device type if serial number exist in platforms, otherwise None."""
         for platform in self._platforms:
             if platform._serial_number == serial_number:
                 return platform._type
+        return None
 
     def GetPlatform(self, type: str, session_number: str, username: str) -> str:
         """Gets a MicroDevice from platform list."""
