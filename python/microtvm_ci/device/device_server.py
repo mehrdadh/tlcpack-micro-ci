@@ -53,7 +53,12 @@ def LoadAttachedDevices(args: argparse.Namespace) -> MicroTVMPlatforms:
         device_list = device_utils.ListConnectedDevices(micro_device)
         for new_device in device_list:
             # Update type based on Device Table since some device share the same (vid, pid).
-            new_device.SetType(table.GetType(new_device.GetSerialNumber()))
+            new_device_type = table.GetType(new_device.GetSerialNumber())
+            
+            if new_device_type is None:
+                continue
+            
+            new_device.SetType(new_device_type)
             attached_devices.AddPlatform(new_device)
     return attached_devices
 
