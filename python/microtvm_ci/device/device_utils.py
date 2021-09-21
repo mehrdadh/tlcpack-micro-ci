@@ -12,7 +12,7 @@ VIRTUALBOX_VID_PID_RE = re.compile(r"0x([0-9A-Fa-f]{4}).*")
 
 MICRO_DEVICE_TYPES = [
     "nucleo_f746zg",
-    "stm32f746xx_disco",
+    "stm32f746g_disco",
     "nrf5340dk_nrf5340_cpuapp",
     "nucleo_l4r5zi",
     "nano33ble",
