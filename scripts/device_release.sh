@@ -35,7 +35,7 @@ device_serial=$1
 shift
 
 source $HOME/.poetry/env
-poetry run python -m microtvm_ci.device.device_client \
+poetry run python -m microtvm_ci.microtvm_device.device_client \
     "release" \
     --device="${device_type}" \
     --serial="${device_serial}"

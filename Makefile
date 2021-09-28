@@ -18,4 +18,4 @@
 # Generate proto python scripts
 proto_device:
 	set -ex
-	cd proto && poetry run python -m grpc_tools.protoc -I.  --python_out=../python --grpc_python_out=../python microtvm_ci/device/microDevice.proto
+	cd proto && poetry run python -m grpc_tools.protoc -I.  --python_out=../python --grpc_python_out=../python microtvm_ci/microtvm_device/microDevice.proto

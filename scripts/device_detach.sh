@@ -41,7 +41,7 @@ else
 fi
 
 source $HOME/.poetry/env
-poetry run python -m microtvm_ci.device.device_client \
+poetry run python -m microtvm_ci.microtvm_device.device_client \
     "detach" \
     --device="${device_type}" \
     --vm-path="${vm_path}" \

@@ -25,5 +25,5 @@ source "./util.sh" || exit 2
 cd "$(get_repo_root)"
 
 source $HOME/.poetry/env
-poetry run python -m microtvm_ci.device.device_client \
+poetry run python -m microtvm_ci.microtvm_device.device_client \
     "query"
