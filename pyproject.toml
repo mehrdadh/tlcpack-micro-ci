@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["mehrdadh <mehrdad.hessar@gmail.com>"]
 keywords = ["microTVM", "tvm"]
-readme = "README.md"
 repository = "https://github.com/mehrdadh/tlcpack-micro-ci"
 license = "Apache"
 packages = [
