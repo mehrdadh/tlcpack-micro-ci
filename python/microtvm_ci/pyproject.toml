@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "microtvm_device"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["mehrdadh <mehrdad.hessar@gmail.com>"]
 keywords = ["microTVM", "tvm", "device"]
-readme = "README.md"
+readme = "device/README.md"
 repository = "https://github.com/mehrdadh/tlcpack-micro-ci"
 license = "Apache"
 packages = [
