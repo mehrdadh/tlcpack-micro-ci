@@ -195,13 +195,18 @@ def release_device(args: argparse.Namespace):
 
 def query_device(args: argparse.Namespace):
     grpc_device = GRPCMicroDevice(args.port, None)
-    if args.enable:
+    if hasattr(args, "enable") and args.enable:
         grpc_device.EnableDevice(serial_number=args.serial, status=True)
-    elif args.disable:
+    elif hasattr(args, "disable") and args.disable:
         grpc_device.EnableDevice(serial_number=args.serial, status=False)
     else:
-        print(grpc_device.RequestList())
+        list = grpc_device.RequestList()
+        print(list)
+        return list
 
+
+def run_command(args):
+    args.func(args)
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -262,10 +267,10 @@ def parse_args() -> argparse.Namespace:
     )
     parser_query.set_defaults(func=query_device)
     parser_query.add_argument(
-        "--enable", action="store_true", help="Enable a device on server."
+        "--enable", action="store_true", default=None, help="Enable a device on server."
     )
     parser_query.add_argument(
-        "--disable", action="store_true", help="Disable a device on server."
+        "--disable", action="store_true", default=None, help="Disable a device on server."
     )
     parser_query.add_argument(serial_arg[0], **serial_arg[1])
 
@@ -275,7 +280,7 @@ def parse_args() -> argparse.Namespace:
 def main():
     args = parse_args()
     logging.basicConfig(level=logging.INFO)
-    args.func(args)
+    run_command(args)
 
 
 if __name__ == "__main__":

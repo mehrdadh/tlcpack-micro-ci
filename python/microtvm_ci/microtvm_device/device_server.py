@@ -15,17 +15,10 @@
 # specific language governing permissions and limitations
 # under the License.
 
-
 from concurrent import futures
 import logging
 import argparse
-import json
-from re import L
-import subprocess
-from sys import platform
-
 import grpc
-import os
 import random
 
 from . import microDevice_pb2
@@ -38,6 +31,7 @@ PLATFORMS = None
 SESSION_NUM_MAX_LEN = 10
 LOG_ = None
 
+LOG_ = logging.getLogger("MicroTVM Device Server")
 
 def LoadAttachedDevices(args: argparse.Namespace) -> MicroTVMPlatforms:
     """
@@ -181,6 +175,5 @@ if __name__ == "__main__":
     args = parse_args()
     if args.log_level:
         logging.basicConfig(level=args.log_level)
-    LOG_ = logging.getLogger("MicroTVM Device Server")
 
     ServerStart(args)

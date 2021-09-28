@@ -15,7 +15,9 @@
 # specific language governing permissions and limitations
 # under the License.
 
+PROTO_OUTPUT_DIR = ../../python/microtvm_ci
+
 # Generate proto python scripts
 proto_device:
 	set -ex
-	cd proto && poetry run python -m grpc_tools.protoc -I.  --python_out=../python --grpc_python_out=../python microtvm_ci/microtvm_device/microDevice.proto
+	cd proto/microtvm_ci && poetry run python -m grpc_tools.protoc -I.  --python_out=${PROTO_OUTPUT_DIR} --grpc_python_out=${PROTO_OUTPUT_DIR} microtvm_device/microDevice.proto
