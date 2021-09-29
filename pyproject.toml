@@ -2,7 +2,10 @@
 name = "microtvm_ci"
 version = "0.1.0"
 description = ""
-authors = ["Mehrdad Hessar"]
+authors = ["mehrdadh <mehrdad.hessar@gmail.com>"]
+keywords = ["microTVM", "tvm"]
+repository = "https://github.com/mehrdadh/tlcpack-micro-ci"
+license = "Apache"
 packages = [
    { include="microtvm_ci", from="python" },
 ]
